@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ben Adovasio</title>
+  <meta name="description" content="Personal website of Ben Adovasio" />
+  <meta property="og:title" content="Ben Adovasio" />
+  <meta property="og:description" content="Quick links to self‑hosted services and tools." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23212529'/><text x='50' y='58' font-size='52' text-anchor='middle' fill='%23ffffff' font-family='Arial, Helvetica, sans-serif'>B</text></svg>">
+  <style>
+    :root {
+      --bg1: #0b1220;
+      --bg2: #111827;
+      --glass: rgba(17, 24, 39, 0.55);
+      --glass-strong: rgba(17, 24, 39, 0.7);
+      --ring: rgba(148, 163, 184, 0.18);
+      --ring-strong: rgba(148, 163, 184, 0.28);
+      --text: #e5e7eb;
+      --muted: #9aa4b2;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --accent: #60a5fa;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; color: var(--text);
+      font: 15px/1.4 ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      /* Subtle radial + linear gradient background */
+      background:
+        radial-gradient(800px 600px at 80% -10%, rgba(96,165,250,.12), rgba(0,0,0,0)),
+        radial-gradient(700px 500px at -10% 30%, rgba(52,211,153,.10), rgba(0,0,0,0)),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+    }
+
+    /* Top bar */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
+      padding: 14px 18px; backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--ring);
+      background: var(--glass-strong);
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand .logo { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-weight:800; background: linear-gradient(135deg,#60a5fa,#34d399); box-shadow: var(--shadow); }
+    .brand h1 { margin:0; font-size: 18px; letter-spacing:.4px; }
+
+    .search { position:relative; }
+    .search input { width: 36vw; min-width:260px; max-width:520px; padding: 12px 40px; border-radius: 12px; border:1px solid var(--ring); background: var(--glass); color: var(--text); outline:none; }
+    .search svg{ position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:.7 }
+
+    .pills { display:flex; gap:10px; align-items:center; }
+    .pill { padding: 8px 10px; border-radius: 999px; border:1px solid var(--ring); background: var(--glass); font-size: 12px; display:flex; align-items:center; gap:8px; }
+    .dot { width:8px; height:8px; border-radius:50%; background:#9ca3af; }
+    .up { background: var(--good); }
+
+    /* Panels */
+    .wrap { padding: 22px 18px 40px; }
+    .panel {
+      backdrop-filter: blur(10px);
+      background: var(--glass);
+      border: 1px solid var(--ring);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 14px 6px;
+    }
+    .panel + .panel{ margin-top: 16px; }
+    .panel h2 { margin: 0 0 10px; font-size: 13px; letter-spacing:.14em; text-transform: uppercase; color: var(--muted); }
+
+    /* Board layout */
+    .board { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+    .cards { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    @media (max-width: 860px){ .cards { grid-template-columns: 1fr; } }
+
+    .card {
+      display:grid; grid-template-columns: 44px 1fr auto; gap:10px; align-items:center;
+      border:1px solid var(--ring); border-radius: 14px; padding: 10px 12px; background: rgba(17,24,39,.55);
+      transition: transform .15s ease, border-color .2s ease, background .2s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--ring-strong); background: rgba(17,24,39,.7); }
+    .card .icon { width: 44px; height:44px; border-radius: 12px; display:grid; place-items:center; background: linear-gradient(135deg,#60a5fa,#34d399); color:white; }
+    .card h3 { margin: 0; font-size: 15px; }
+    .card p { margin: 0; color: var(--muted); font-size: 12.5px; }
+    .meta { display:flex; gap: 8px; align-items:center; flex-wrap: wrap; margin-top: 6px; }
+    .tag { font-size: 11px; color: var(--text); background: rgba(255,255,255,.06); border:1px solid var(--ring); padding: 4px 8px; border-radius: 999px; }
+    .state { font-weight:700; font-size: 11px; padding: 4px 8px; border-radius: 999px; border:1px solid var(--ring); }
+    .ok { color: #16a34a; background: rgba(22,163,74,.15); }
+    .warn { color: #f59e0b; background: rgba(245,158,11,.12); }
+    .bad { color: #ef4444; background: rgba(239,68,68,.12); }
+
+    .visit { text-decoration:none; font-weight: 600; font-size: 12.5px; color: var(--accent); }
+
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; border:1px solid var(--ring); background: rgba(255,255,255,.06); padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><div class="logo">B</div><div>
+      <h1>Ben Adovasio</h1>
+      <div class="sub" style="color:var(--muted); font-size:12px;">Homelab Dashboard</div>
+    </div></div>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="filter" type="search" placeholder="Search… (cloud, print, vpn)" autocomplete="off" />
+    </div>
+    <div class="pills">
+      <div class="pill"><span class="dot up"></span><span id="svcCount">0</span> Services</div>
+      <div class="pill"><span id="clock">--:--</span></div>
+      <button class="pill" id="themeToggle" style="cursor:pointer">Toggle Theme</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="board">
+      <section class="panel" id="core">
+        <h2>Core</h2>
+        <div class="cards" id="grid-core"></div>
+      </section>
+
+      <section class="panel" id="infrastructure">
+        <h2>Infrastructure</h2>
+        <div class="cards" id="grid-infra"></div>
+      </section>
+
+      <section class="panel" id="observability">
+        <h2>Observability</h2>
+        <div class="cards" id="grid-obs"></div>
+      </section>
+
+      <section class="panel" id="tools">
+        <h2>Applications</h2>
+        <div class="cards" id="grid-tools"></div>
+      </section>
+    </div>
+
+    <div style="margin-top:16px; color:var(--muted); font-size:12.5px;">Tip: <span class="kbd">/</span> to search</div>
+  </div>
+
+  <script>
+    // =================== CONFIG ===================
+    const SERVICES = {
+      core: [
+        { name: "VPN Portal", url: "https://vpn-portal.adovasio.com", desc: "VPN Access Portal", icon: "shield", tags: ["public"], status: "ok", ha_entity: null, statuspage_component: null },
+        { name: "Smart Home", url: "https://smart.adovasio.com", desc: "Home Assistant", icon: "home", tags: ["public"], status: "ok", ha_entity: "binary_sensor.home_assistant_online", statuspage_component: null },
+        { name: "Print", url: "https://print.adovasio.com", desc: "PaperCut", icon: "printer", tags: ["public"], status: "ok", ha_entity: null, statuspage_component: null },
+        { name: "Vault", url: "http://vault.adovasio.local", desc: "Bitwarden (Local Only)", icon: "lock", tags: ["lan-only"], status: "warn", ha_entity: null, statuspage_component: null },
+        { name: "Cloud", url: "https://cloud.adovasio.com", desc: "Nextcloud", icon: "cloud", tags: ["public"], status: "ok", ha_entity: "binary_sensor.nextcloud_up", statuspage_component: null },
+        { name: "Status", url: "https://adovasio.statuspage.io", desc: "Status Page", icon: "heartbeat", tags: ["external"], status: "ok", ha_entity: null, statuspage_component: "Overall" }
+      ],
+      infra: [],
+      observability: [],
+      tools: []
+    };
+
+    // External integrations (optional). If left empty, the page will still render.
+    const INTEGRATIONS = {
+      homeAssistant: {
+        // Example: 'https://smart.adovasio.com/api'
+        baseUrl: '', // set to HA base + '/api'
+        longLivedToken: '', // create in HA profile; NOTE: exposing tokens in client-side JS is risky. Prefer a server-side proxy.
+        // map entity_id => service name (optional, used for auto-mapping if SERVICES has ha_entity set to that id)
+      },
+      statuspage: {
+        // Your page id. For custom domain statuspage.io you can retrieve it from /api/v2/summary.json
+        pageId: '', // e.g. 'abcd1234'
+      }
+    };
+
+    // =================== ICONS ===================
+    const ICONS = {
+      cloud: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H7a5 5 0 1 1 2-9.584 6 6 0 0 1 11 3.084A4 4 0 0 1 17.5 19Z"/></svg>',
+      printer: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>',
+      home: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7"/><path d="M9 22V12h6v10"/></svg>',
+      shield: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      heartbeat: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 7 4-14 3 7h4"/></svg>',
+      lock: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+    };
+
+    const el = (tag, cls) => { const e=document.createElement(tag); if(cls) e.className=cls; return e; };
+
+    function card(service){
+      const a = el('a', 'card'); a.href = service.url; a.target = '_blank'; a.rel = 'noopener';
+      const ico = el('div', 'icon'); ico.innerHTML = ICONS[service.icon] || ICONS.home; a.appendChild(ico);
+
+      const body = el('div');
+      const h3 = el('h3'); h3.textContent = service.name; body.appendChild(h3);
+      const p = el('p'); p.textContent = service.desc || ''; body.appendChild(p);
+      const meta = el('div', 'meta');
+      (service.tags||[]).forEach(t => { const span = el('span', 'tag'); span.textContent = t; meta.appendChild(span); });
+      body.appendChild(meta);
+      a.appendChild(body);
+
+      const right = el('div');
+      const st = el('span', 'state ' + (service.status || 'ok'));
+      st.textContent = (service.status||'ok').toUpperCase();
+      right.appendChild(st);
+      const link = el('a', 'visit'); link.href = service.url; link.target='_blank'; link.rel='noopener'; link.textContent='Open →'; right.appendChild(link);
+      a.appendChild(right);
+
+      return a;
+    }
+
+    function render(){
+      const data = window.__services || SERVICES;
+      const mapping = [
+        ['core','grid-core', data.core],
+        ['infrastructure','grid-infra', data.infra],
+        ['observability','grid-obs', data.observability],
+        ['tools','grid-tools', data.tools]
+      ];
+      let total = 0;
+      mapping.forEach(([sectionId, gridId, list]) => {
+        const section = document.getElementById(sectionId);
+        const root = document.getElementById(gridId);
+        root.innerHTML = '';
+        (list||[]).forEach(s => { total++; root.appendChild(card(s)); });
+        section.style.display = (list && list.length) ? '' : 'none';
+      });
+      document.getElementById('svcCount').textContent = total;
+      applyFilter(document.getElementById('filter').value);
+    }
+
+    function applyFilter(q){
+      q = (q || '').trim().toLowerCase();
+      const sectionMaps = [
+        ['core','grid-core'],
+        ['infrastructure','grid-infra'],
+        ['observability','grid-obs'],
+        ['tools','grid-tools']
+      ];
+      sectionMaps.forEach(([sectionId, gridId]) => {
+        const section = document.getElementById(sectionId);
+        const cards = document.querySelectorAll(`#${gridId} .card`);
+        let visible = 0;
+        cards.forEach(c => {
+          const text = c.innerText.toLowerCase();
+          const match = text.includes(q);
+          c.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+        section.style.display = visible ? '' : 'none';
+      });
+    }
+
+    // Search & keyboard
+    document.getElementById('filter').addEventListener('input', (e)=> applyFilter(e.target.value));
+    document.addEventListener('keydown', (e)=>{ if(e.key === '/'){ e.preventDefault(); document.getElementById('filter').focus(); }});
+
+    // Theme toggle (simple; you can extend to light mode styles if you want)
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', ()=> document.body.classList.toggle('light'));
+
+    // Clock
+    const clock = document.getElementById('clock');
+    setInterval(()=>{ const d=new Date(); clock.textContent=d.toLocaleString(undefined,{hour:'2-digit',minute:'2-digit'}); }, 1000);
+
+    // =================== INTEGRATIONS ===================
+    async function fetchHomeAssistant(){
+      if(!INTEGRATIONS.homeAssistant.baseUrl || !INTEGRATIONS.homeAssistant.longLivedToken) return null;
+      try{
+        const res = await fetch(INTEGRATIONS.homeAssistant.baseUrl + '/states', {
+          headers: { 'Authorization': 'Bearer '+INTEGRATIONS.homeAssistant.longLivedToken }
+        });
+        if(!res.ok) throw new Error('HA HTTP '+res.status);
+        const data = await res.json();
+        return data; // array of entities
+      }catch(e){ console.warn('HA fetch failed:', e.message); return null; }
+    }
+
+    async function fetchStatuspage(){
+      if(!INTEGRATIONS.statuspage.pageId) return null;
+      try{
+        const res = await fetch('https://'+INTEGRATIONS.statuspage.pageId+'.statuspage.io/api/v2/summary.json', { cache: 'no-store' });
+        if(!res.ok) throw new Error('Statuspage HTTP '+res.status);
+        return await res.json();
+      }catch(e){ console.warn('Statuspage fetch failed:', e.message); return null; }
+    }
+
+    function updateStatusesFromHA(states){
+      if(!states) return;
+      const byId = Object.fromEntries(states.map(s=>[s.entity_id, s]));
+      const lists = Object.values(SERVICES).flat();
+      lists.forEach(s => {
+        if(!s.ha_entity) return;
+        const st = byId[s.ha_entity];
+        if(!st) return;
+        const isOk = (st.state === 'on' || st.state === 'online' || st.state === 'home' || st.state === 'running' || st.state === 'connected' || st.state === 'open');
+        s.status = isOk ? 'ok' : 'bad';
+      });
+    }
+
+    function updateStatusesFromStatuspage(summary){
+      if(!summary) return;
+      const overall = summary?.status?.indicator; // none, minor, major, critical
+      const lists = Object.values(SERVICES).flat();
+      lists.forEach(s => {
+        if(s.statuspage_component === 'Overall'){
+          s.status = (overall === 'none') ? 'ok' : (overall === 'minor' ? 'warn' : 'bad');
+        }
+      });
+    }
+
+    async function hydrateExternal(){
+      const [ha, sp] = await Promise.all([fetchHomeAssistant(), fetchStatuspage()]);
+      updateStatusesFromHA(ha);
+      updateStatusesFromStatuspage(sp);
+      render();
+    }
+
+    // Initial render
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { render(); hydrateExternal(); });
+    } else { render(); hydrateExternal(); }
+
+    // --- Tests --- (these just sanity-check in the console)
+    (function tests(){
+      try {
+        console.assert(typeof render === 'function', 'render() defined');
+        console.assert(typeof applyFilter === 'function', 'applyFilter() defined');
+        console.assert(typeof fetchHomeAssistant === 'function', 'fetchHomeAssistant() defined');
+        console.assert(typeof fetchStatuspage === 'function', 'fetchStatuspage() defined');
+        const total = Number(document.getElementById('svcCount').textContent||'0');
+        console.assert(Number.isFinite(total), 'svcCount numeric');
+      } catch(e){ console.warn('Tests issue:', e); }
+    })();
+
+    // ===== Notes =====
+    // • If browser blocks CORS to Home Assistant or Statuspage, place this file behind your Apache/Sophos reverse proxy
+    //   and proxy /ha/* => https://smart.adovasio.com/api and /statuspage/* => https://adovasio.statuspage.io/api/v2.
+    //   Then set INTEGRATIONS.homeAssistant.baseUrl = '/ha' and use no tokens (or inject server-side).
+    // • For Statuspage custom domains, set INTEGRATIONS.statuspage.pageId to your subdomain (e.g., 'adovasio').
+  </script>
+</body>
+</html>
