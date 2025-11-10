@@ -36,11 +36,16 @@
     body {
       margin: 0;
       font: 16px/1.45 ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      /* Subtle gradient background (your request) */
-      background:
-        radial-gradient(900px 700px at 80% -10%, rgba(96,165,250,.12), transparent),
-        radial-gradient(800px 600px at -8% 28%, rgba(52,211,153,.10), transparent),
+      /* Subtle gradient background (smoothed to avoid abrupt restart on scroll/resize) */
+      background-image:
+        radial-gradient(60% 55% at 80% -10%, rgba(96,165,250,.12), transparent 40%),
+        radial-gradient(55% 50% at -8% 28%, rgba(52,211,153,.10), transparent 45%),
         linear-gradient(180deg, var(--bg), var(--bg2));
+      /* Ensure gradients don't tile or jump when the page scrolls/resizes */
+      background-repeat: no-repeat, no-repeat, no-repeat;
+      background-attachment: fixed, fixed, fixed;
+      /* Make radial layers large enough to cover and blend smoothly */
+      background-size: 120% 120%, 120% 120%, auto;
       color: var(--text);
     }
     .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 56px; }
@@ -99,7 +104,6 @@
 <body>
   <div class="container">
     <header>
-      <div class="brand" aria-hidden="true">B</div>
       <div>
         <h1>Ben Adovasio</h1>
         <div class="sub">Quick links to self-hosted services • <span id="count"></span> endpoints</div>
@@ -141,9 +145,9 @@
       <div class="grid" id="grid-public"></div>
     </section>
 
-    <section class="section" id="private">
-      <h2>Private</h2>
-      <div class="grid" id="grid-private"></div>
+    <section class="section" id="secure">
+      <h2>Secure</h2>
+      <div class="grid" id="grid-secure"></div>
     </section>
 
     <section class="section" id="infrastructure">
@@ -163,7 +167,11 @@
 
     <footer>
       <div>Tip: press <span class="kbd">/</span> to focus search, <span class="kbd">t</span> to toggle theme.</div>
-      <div><span class="status-dot status-up"></span><span id="statusHint">Static page — status badges optional</span></div>
+      <div>
+        <span class="status-dot status-up"></span>
+        <span id="statusHint">Static page — status badges optional</span>
+        <span style="margin-left:12px; color:var(--muted); font-size:13px;">© Benjamin Adovasio 2025</span>
+      </div>
     </footer>
   </div>
 
@@ -171,12 +179,12 @@
     // ---- Configuration (same as "before") ----
     const SERVICES = {
       core: [
-        { name: "VPN Portal", url: "https://vpn-portal.adovasio.com", desc: "VPN Access Portal", icon: "shield", tags: ["public"] },
-        { name: "Smart Home", url: "https://smart.adovasio.com", desc: "Home Assistant", icon: "home", tags: ["public"] },
-        { name: "Print", url: "https://print.adovasio.com", desc: "PaperCut", icon: "printer", tags: ["public"] },
-        { name: "Vault", url: "http://vault.adovasio.local", desc: "Bitwarden (Local Only)", icon: "lock", tags: ["lan-only"] },
-        { name: "Cloud", url: "https://cloud.adovasio.com", desc: "Nextcloud", icon: "cloud", tags: ["public"] },
-        { name: "Status", url: "https://adovasio.statuspage.io", desc: "Service Status Page", icon: "heartbeat", tags: ["external"] }
+        { name: "VPN Portal", url: "https://vpn-portal.adovasio.com", desc: "VPN Access Portal", icon: "shield", tags: ["secure"] },
+        { name: "Smart Home", url: "https://smart.adovasio.com", desc: "Home Assistant", icon: "home", tags: ["secure"] },
+        { name: "Print", url: "https://print.adovasio.com", desc: "PaperCut", icon: "printer", tags: ["secure"] },
+        { name: "Vault", url: "http://vault.adovasio.local", desc: "Bitwarden (Local Only)", icon: "lock", tags: ["lan-only","secure"] },
+        { name: "Cloud", url: "https://cloud.adovasio.com", desc: "Nextcloud", icon: "cloud", tags: ["secure"] },
+        { name: "Status", url: "https://adovasio.statuspage.io", desc: "Service Status Page", icon: "heartbeat", tags: ["public","external"] }
       ],
       infra: [],
       observability: [],
@@ -244,8 +252,8 @@
       const data = window.__services || SERVICES;
       // Split core services into public vs private (lan-only) based on tags
       const coreList = data.core || [];
-      const publicCore = coreList.filter(s => !(s.tags || []).includes('lan-only'));
-      const privateCore = coreList.filter(s => (s.tags || []).includes('lan-only'));
+  const publicCore = coreList.filter(s => !(s.tags || []).includes('secure'));
+  const secureCore = coreList.filter(s => (s.tags || []).includes('secure'));
 
       const mapping = [
         ['infrastructure','grid-infra', data.infra],
@@ -262,12 +270,12 @@
       publicCore.forEach(s => { total++; pubRoot.appendChild(card(s)); });
       pubSection.style.display = publicCore.length ? '' : 'none';
 
-      // Render private core
-      const privSection = document.getElementById('private');
-      const privRoot = document.getElementById('grid-private');
-      privRoot.innerHTML = '';
-      privateCore.forEach(s => { total++; privRoot.appendChild(card(s)); });
-      privSection.style.display = privateCore.length ? '' : 'none';
+  // Render secure core
+  const secSection = document.getElementById('secure');
+  const secRoot = document.getElementById('grid-secure');
+  secRoot.innerHTML = '';
+  secureCore.forEach(s => { total++; secRoot.appendChild(card(s)); });
+  secSection.style.display = secureCore.length ? '' : 'none';
 
       // Render remaining sections
       mapping.forEach(([sectionId, gridId, list]) => {
@@ -287,7 +295,7 @@
       q = (q || '').trim().toLowerCase();
       const sectionMaps = [
         ['public','grid-public'],
-        ['private','grid-private'],
+        ['secure','grid-secure'],
         ['infrastructure','grid-infra'],
         ['observability','grid-obs'],
         ['tools','grid-tools']
@@ -372,7 +380,7 @@
     (function tests(){
       try {
   console.assert(typeof render === 'function', 'render() should be defined');
-  console.assert(document.querySelectorAll('#grid-public .card, #grid-private .card, #grid-infra .card, #grid-obs .card, #grid-tools .card').length >= 1, 'service cards should render');
+  console.assert(document.querySelectorAll('#grid-public .card, #grid-secure .card, #grid-infra .card, #grid-obs .card, #grid-tools .card').length >= 1, 'service cards should render');
         console.assert(document.getElementById('overall-card'), 'status overall card present');
       } catch(e){ console.warn('Tests issue:', e); }
     })();
