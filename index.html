@@ -124,18 +124,14 @@
     <section class="section" id="status">
       <h2>Status</h2>
       <div class="grid" id="grid-status">
-        <div class="card" id="overall-card">
+        <a class="card" id="overall-card" href="https://adovasio.statuspage.io" target="_blank" rel="noopener">
           <div class="icon" aria-hidden="true">⚡</div>
           <div>
             <h3 id="overall-text">Overall Status</h3>
             <p id="overall-desc" class="muted">Loading from Statuspage…</p>
-            <div class="meta">
-              <span class="tag" id="incident-count">Incidents: 0</span>
-              <span class="tag" id="maint-count">Maintenances: 0</span>
-            </div>
           </div>
           <span id="overall-indicator" class="visit" style="margin-left:auto;">OK</span>
-        </div>
+        </a>
         <div id="status-components" class="grid" style="grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:16px; width:100%"></div>
       </div>
     </section>
@@ -347,8 +343,6 @@
       desc.textContent = human;
       ind.textContent = outcome;
       ind.style.color = (indicator==='none')? '#10b981' : (indicator==='minor' ? '#f59e0b' : '#ef4444');
-      incTag.textContent = `Incidents: ${(sp.incidents||[]).length}`;
-      mTag.textContent = `Maintenances: ${(sp.upcoming||[]).length}`;
       // components
       compRoot.innerHTML = '';
       (sp.components||[]).forEach(c => {
